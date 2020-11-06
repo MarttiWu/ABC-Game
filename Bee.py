@@ -100,7 +100,7 @@ def FitnessFunction(hive,flower):
         fsize=2
     elif flower.size=='FLOWER3':
         fsize=3
-    return (distance/longestdis) / (fsize/fmaxsize)
+    return (fsize/fmaxsize)/(distance/longestdis)
 
 
 
@@ -182,12 +182,13 @@ class Onlooker(pg.sprite.Sprite):
                     
         
     def separation(self):
+        #print('number of neighbors: ',len(self.sneighbors))
         sV = np.zeros(2)
         if not self.sneighbors:
             return sV
         for n in self.sneighbors:
-            sV[0]+=self.x-n.x
-            sV[1]+=self.y-n.y
+            sV[0]+=self.x-n.x + random.uniform(0,1)
+            sV[1]+=self.y-n.y + random.uniform(0,1)
         sV/=len(self.sneighbors)
         
         uu = np.linalg.norm(sV)
@@ -200,10 +201,11 @@ class Onlooker(pg.sprite.Sprite):
         return sV
         
             
-    def arrivedSource(self,hives):
+    def arrivedSource(self):
         global GlobalBestSource
         x = GlobalBestSource['pos'][0]
         y = GlobalBestSource['pos'][1]
+        floimgsize = (0,0)
         if GlobalBestSource['fsize']=='FLOWER1':
             floimgsize = floimgsize1
         elif GlobalBestSource['fsize']=='FLOWER2':
@@ -211,13 +213,13 @@ class Onlooker(pg.sprite.Sprite):
         elif GlobalBestSource['fsize']=='FLOWER3':
             floimgsize = floimgsize3
         
-            if ((self.x>x-floimgsize[0]//2-5) and (self.x<x+floimgsize[0]//2+5)) and ((self.y>y-floimgsize[1]//2-5) and (self.y<y+floimgsize[1]//2+5)):
-                #print('self.x: ',self.x,'self.y:',self.y)
-                #print('flower.x: ',flower.x,'flower.y:',flower.y)
-                #self.source['pos'] = (flower.x,flower.y)
-                #self.source['val'] = FitnessFunction(hives[0],flower)
-                #print(self.source)
-                return True
+        if ((self.x>x-floimgsize[0]//2-5) and (self.x<x+floimgsize[0]//2+5)) and ((self.y>y-floimgsize[1]//2-5) and (self.y<y+floimgsize[1]//2+5)):
+            #print('self.x: ',self.x,'self.y:',self.y)
+            #print('flower.x: ',flower.x,'flower.y:',flower.y)
+            #self.source['pos'] = (flower.x,flower.y)
+            #self.source['val'] = FitnessFunction(hives[0],flower)
+            #print(self.source)
+            return True
             
         return False
                 
@@ -242,7 +244,7 @@ class Onlooker(pg.sprite.Sprite):
             self.y += self.dy*step
             return
         
-        if self.carry==0 and self.arrivedSource(hives):
+        if self.carry==0 and self.arrivedSource():
             self.carry=1
             self.dx = -self.dx
             self.dy = -self.dy
@@ -252,6 +254,7 @@ class Onlooker(pg.sprite.Sprite):
             #self.dy=0
             return
         
+        #print('self.carry: ',self.carry)
         #Return to hive with food and store
         if self.carry==1:
             if self.atHome(hives):
@@ -280,26 +283,26 @@ class Onlooker(pg.sprite.Sprite):
         
         
         
-        
-        #If any source found by employee, go to global best source
-        if len(Sources)>0:
-            print(GlobalBestSource['pos'])
-            dx = GlobalBestSource['pos'][0]-self.x
-            dy = GlobalBestSource['pos'][1]-self.y
-            
-            if np.linalg.norm(np.array([dx,dy]))==0:
-                divisor = 0.01
-            else:
-                divisor = np.linalg.norm(np.array([dx,dy]))
-            
-            self.dx = dx/divisor
-            self.dy = dy/divisor
-        #stay at home
         else:
-            self.dx=0
-            self.dy=0
-                    
-         #separation
+            #If any source found by employee, go to global best source
+            if len(Sources)>0:
+                print(GlobalBestSource)
+                dx = GlobalBestSource['pos'][0]-self.x
+                dy = GlobalBestSource['pos'][1]-self.y
+                
+                if np.linalg.norm(np.array([dx,dy]))==0:
+                    divisor = 0.01
+                else:
+                    divisor = np.linalg.norm(np.array([dx,dy]))
+                
+                self.dx = dx/divisor
+                self.dy = dy/divisor
+            #stay at home
+            else:
+                self.dx=0
+                self.dy=0
+        '''
+        #separation
         #self.find_neighbors(other)
         V = np.zeros(2)
         V += self.separation()
@@ -310,7 +313,7 @@ class Onlooker(pg.sprite.Sprite):
         print('V: ',V)
         self.dx += V[0]
         self.dy += V[1]
-                    
+        '''
     def find_neighbors(self,other):
         self.sneighbors.clear()
         for o in other:
@@ -710,6 +713,7 @@ def init_hive():
 ##################################################
 
 def main():
+    global GlobalBestSource
     clock = pg.time.Clock()
 
     employees,EMPLOYEE = init_employees()
@@ -747,6 +751,9 @@ def main():
                     START=True
                     
                 if 250 <= mouse[0] <= 350 and 560 <= mouse[1] <= 580:
+                    GlobalBestSource.clear()
+                    GlobalBestSource = {'pos':[-10,-10],'val':-1,'fsize':''}
+                    Sources.clear()
                     employees.clear()
                     EMPLOYEE.empty()
                     onlookers.clear()
