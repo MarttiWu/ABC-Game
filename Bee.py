@@ -84,12 +84,20 @@ img = {'E1':pg.transform.scale(pg.image.load('images/employee1.png'), beeimgsize
         'FLOWER3':pg.transform.scale(pg.image.load('images/flower3.png'), floimgsize3),
         'HIVE':pg.transform.scale(pg.image.load('images/hive.png'), hiveimgsize),
         'SMALLROCK':pg.transform.scale(pg.image.load('images/smallrock.png'), rockimgsize),
-        'BIGROCK':pg.transform.scale(pg.image.load('images/bigrock.png'), rockimgsize)
+        'BIGROCK':pg.transform.scale(pg.image.load('images/bigrock.png'), rockimgsize),
+        'eru':pg.transform.scale(pg.image.load('images/e_ru.png'), beeimgsize),
+        'erd':pg.transform.scale(pg.image.load('images/e_rd.png'), beeimgsize),
+        'elu':pg.transform.scale(pg.image.load('images/e_lu.png'), beeimgsize),
+        'eld':pg.transform.scale(pg.image.load('images/e_ld.png'), beeimgsize),
+        'oru':pg.transform.scale(pg.image.load('images/o_ru.png'), beeimgsize),
+        'ord':pg.transform.scale(pg.image.load('images/o_rd.png'), beeimgsize),
+        'olu':pg.transform.scale(pg.image.load('images/o_lu.png'), beeimgsize),
+        'old':pg.transform.scale(pg.image.load('images/o_ld.png'), beeimgsize)
 }
 
 Sources = []
-GlobalBestSource = {'pos':[-10,-10],'val':-1,'fsize':''}
-GlobalBestFlower = -1
+GlobalBestSource = -1
+#GlobalBestFlower = -1
 
 def FitnessFunction(hive,flower):
     distance = math.sqrt( ((hive.x-flower.x)**2)+((hive.y-flower.y)**2) )
@@ -127,7 +135,8 @@ class Onlooker(pg.sprite.Sprite):
         self.y = y
         self.dx = dx
         self.dy = dy
-        self.source = {'pos':[-10,-10],'val':-1}
+        #self.source = {'pos':[-10,-10],'val':-1}
+        self.source = -1
         self.carry = 0
         #self.localbest = {'pos':[-10,-10],'val':-1}
         #self.globalbest = {'pos':[-10,-10],'val':-1} #obtained in hive
@@ -135,6 +144,7 @@ class Onlooker(pg.sprite.Sprite):
         #self.cneighbors = []
         self.sneighbors = []
         #self.count=15
+        self.wing=1
         
     def draw(self,obstacles):
         #goes oppsite direction when reaches the boundaries
@@ -159,22 +169,34 @@ class Onlooker(pg.sprite.Sprite):
             self.y += random.choice(numbers)*2
         '''
         #change image for different directions
-        if self.dx==0 and self.dy<0:
-            self.image = img['O1']
-        elif self.dx>0 and self.dy<0:
-            self.image = img['O2']
-        elif self.dx>0 and self.dy==0:
-            self.image = img['O3']
-        elif self.dx>0 and self.dy>0:
-            self.image = img['O4']
-        elif self.dx==0 and self.dy>0:
-            self.image = img['O5']
-        elif self.dx<0 and self.dy>0:
-            self.image = img['O6']
-        elif self.dx<0 and self.dy==0:
-            self.image = img['O7']
-        elif self.dx<0 and self.dy<0:
-            self.image = img['O8']
+#        if self.dx==0 and self.dy<0:
+#            self.image = img['O1']
+#        elif self.dx>0 and self.dy<0:
+#            self.image = img['O2']
+#        elif self.dx>0 and self.dy==0:
+#            self.image = img['O3']
+#        elif self.dx>0 and self.dy>0:
+#            self.image = img['O4']
+#        elif self.dx==0 and self.dy>0:
+#            self.image = img['O5']
+#        elif self.dx<0 and self.dy>0:
+#            self.image = img['O6']
+#        elif self.dx<0 and self.dy==0:
+#            self.image = img['O7']
+#        elif self.dx<0 and self.dy<0:
+#            self.image = img['O8']
+        self.wing = -self.wing
+        if self.dx>=0:
+            if self.wing==1:
+                self.image = img['oru']
+            else:
+                self.image = img['ord']
+                
+        else:
+            if self.wing==1:
+                self.image = img['olu']
+            else:
+                self.image = img['old']
             
         
         self.rect.center = (self.x,self.y)
@@ -204,14 +226,14 @@ class Onlooker(pg.sprite.Sprite):
             
     def arrivedSource(self):
         global GlobalBestSource
-        x = GlobalBestSource['pos'][0]
-        y = GlobalBestSource['pos'][1]
+        x = GlobalBestSource.x
+        y = GlobalBestSource.y
         floimgsize = (0,0)
-        if GlobalBestSource['fsize']=='FLOWER1':
+        if GlobalBestSource.size=='FLOWER1':
             floimgsize = floimgsize1
-        elif GlobalBestSource['fsize']=='FLOWER2':
+        elif GlobalBestSource.size=='FLOWER2':
             floimgsize = floimgsize2
-        elif GlobalBestSource['fsize']=='FLOWER3':
+        elif GlobalBestSource.size=='FLOWER3':
             floimgsize = floimgsize3
         
         if ((self.x>x-floimgsize[0]//2-5) and (self.x<x+floimgsize[0]//2+5)) and ((self.y>y-floimgsize[1]//2-5) and (self.y<y+floimgsize[1]//2+5)):
@@ -245,7 +267,7 @@ class Onlooker(pg.sprite.Sprite):
             self.y += self.dy*step
             return
         
-        if self.carry==0 and self.arrivedSource():
+        if GlobalBestSource!=-1 and self.carry==0 and self.arrivedSource():
             self.carry=1
             self.dx = -self.dx
             self.dy = -self.dy
@@ -253,9 +275,9 @@ class Onlooker(pg.sprite.Sprite):
             self.y += self.dy*step
             #self.dx=0
             #self.dy=0
-            GlobalBestFlower.food-=1
+            GlobalBestSource.food-=1
             
-            print('food: ',GlobalBestFlower.food)
+            print('food: ',GlobalBestSource.food)
             return
         
         #print('self.carry: ',self.carry)
@@ -290,9 +312,9 @@ class Onlooker(pg.sprite.Sprite):
         else:
             #If any source found by employee, go to global best source
             if len(Sources)>0:
-                print(GlobalBestSource)
-                dx = GlobalBestSource['pos'][0]-self.x
-                dy = GlobalBestSource['pos'][1]-self.y
+                #print(GlobalBestSource)
+                dx = GlobalBestSource.x-self.x
+                dy = GlobalBestSource.y-self.y
                 
                 if np.linalg.norm(np.array([dx,dy]))==0:
                     divisor = 0.01
@@ -382,14 +404,15 @@ class Employee(pg.sprite.Sprite):
     
     def __init__(self,x,dx,y,dy):
         super().__init__()
-        self.image = img['E1']
+        self.image = img['eru']
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.x = x
         self.y = y
         self.dx = dx
         self.dy = dy
-        self.source = {'pos':[-10,-10],'val':-1,'fsize':''}
+        #self.source = {'pos':[-10,-10],'val':-1,'fsize':''}
+        self.source = -1
         self.foundFlower = -1
         self.carry = 0
         #self.localbest = {'pos':[-10,-10],'val':-1}
@@ -398,6 +421,7 @@ class Employee(pg.sprite.Sprite):
         #self.cneighbors = []
         self.sneighbors = []
         self.count=15
+        self.wing = 1
         
     def draw(self,obstacles):
         #goes oppsite direction when reaches the boundaries
@@ -422,22 +446,36 @@ class Employee(pg.sprite.Sprite):
             self.y += random.choice(numbers)*2
         '''
         #change image for different directions
-        if self.dx==0 and self.dy<0:
-            self.image = img['E1']
-        elif self.dx>0 and self.dy<0:
-            self.image = img['E2']
-        elif self.dx>0 and self.dy==0:
-            self.image = img['E3']
-        elif self.dx>0 and self.dy>0:
-            self.image = img['E4']
-        elif self.dx==0 and self.dy>0:
-            self.image = img['E5']
-        elif self.dx<0 and self.dy>0:
-            self.image = img['E6']
-        elif self.dx<0 and self.dy==0:
-            self.image = img['E7']
-        elif self.dx<0 and self.dy<0:
-            self.image = img['E8']
+#        if self.dx==0 and self.dy<0:
+#            self.image = img['E1']
+#        elif self.dx>0 and self.dy<0:
+#            self.image = img['E2']
+#        elif self.dx>0 and self.dy==0:
+#            self.image = img['E3']
+#        elif self.dx>0 and self.dy>0:
+#            self.image = img['E4']
+#        elif self.dx==0 and self.dy>0:
+#            self.image = img['E5']
+#        elif self.dx<0 and self.dy>0:
+#            self.image = img['E6']
+#        elif self.dx<0 and self.dy==0:
+#            self.image = img['E7']
+#        elif self.dx<0 and self.dy<0:
+#            self.image = img['E8']
+        self.wing = -self.wing
+        if self.dx>=0:
+            if self.wing==1:
+                self.image = img['eru']
+            else:
+                self.image = img['erd']
+                
+        else:
+            if self.wing==1:
+                self.image = img['elu']
+            else:
+                self.image = img['eld']
+
+
             
         
         self.rect.center = (self.x,self.y)
@@ -476,10 +514,12 @@ class Employee(pg.sprite.Sprite):
             if ((self.x>flower.x-floimgsize[0]//2-5) and (self.x<flower.x+floimgsize[0]//2+5)) and ((self.y>flower.y-floimgsize[1]//2-5) and (self.y<flower.y+floimgsize[1]//2+5)):
                 #print('self.x: ',self.x,'self.y:',self.y)
                 #print('flower.x: ',flower.x,'flower.y:',flower.y)
-                self.source['pos'] = (flower.x,flower.y)
-                self.source['val'] = FitnessFunction(hives[0],flower)
-                self.source['fsize'] = flower.size
+                #self.source['pos'] = (flower.x,flower.y)
+                #self.source['val'] = FitnessFunction(hives[0],flower)
+                #self.source['fsize'] = flower.size
                 self.foundFlower = flower
+                self.source = flower
+                self.source.val = FitnessFunction(hives[0],flower)
                 #print(self.source)
                 return True
             
@@ -493,7 +533,7 @@ class Employee(pg.sprite.Sprite):
     
     def update_direction(self,other,flowers,hives,obstacles):
         global GlobalBestSource
-        global GlobalBestFlower
+        #global GlobalBestFlower
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
             self.dx = -self.dx
@@ -509,9 +549,9 @@ class Employee(pg.sprite.Sprite):
         #Return to hive with food and store and dance
         if self.carry==1:
             if self.atHome(hives):
-                if self.source['val']>GlobalBestSource['val']:
+                if GlobalBestSource==-1 or self.source.val>GlobalBestSource.val:
                     GlobalBestSource = self.source
-                    GlobalBestFlower = self.foundFlower
+                    #GlobalBestFlower = self.foundFlower
                 Sources.append(self.source)
                 if self.count<0:
                     self.carry=0
@@ -654,6 +694,7 @@ class Flower(pg.sprite.Sprite):
         self.y = y
         self.size = size
         self.food=0
+        self.val = -1
         if size=='FLOWER1':
             self.food=onlooker_size
         elif size=='FLOWER2':
@@ -730,7 +771,7 @@ def init_hive():
 
 def main():
     global GlobalBestSource
-    global GlobalBestFlower
+    #global GlobalBestFlower
     global Sources
     clock = pg.time.Clock()
 
@@ -770,8 +811,8 @@ def main():
                     
                 if 250 <= mouse[0] <= 350 and 560 <= mouse[1] <= 580:
                     GlobalBestSource.clear()
-                    GlobalBestSource = {'pos':[-10,-10],'val':-1,'fsize':''}
-                    GlobalBestFlower = -1
+                    GlobalBestSource = -1
+                    #GlobalBestFlower = -1
                     Sources.clear()
                     employees.clear()
                     EMPLOYEE.empty()
@@ -794,18 +835,27 @@ def main():
             Game start
         '''
         if START:
-            if GlobalBestFlower!=-1 and GlobalBestFlower.food<=0:
-                print('flowers: ',flowers)
-                print('GlobalBestFlower: ',GlobalBestFlower)
+            if GlobalBestSource!=-1 and GlobalBestSource.food<=0:
+                print('GlobalBestSource: ',GlobalBestSource)
+                #print('flowers: ',flowers)
+                #print('GlobalBestFlower: ',GlobalBestFlower)
 #                Sources.remove(GlobalBestFlower)
 #                Sources = sorted(Sources, key= lambda e:FitnessFunction(e))
-                if GlobalBestFlower in flowers:
-                    s = {'pos':(GlobalBestFlower.x,GlobalBestFlower.y),'val':FitnessFunction(hives[0],GlobalBestFlower),'fsize':GlobalBestFlower.size}
-                    Sources.remove(s)
-                    Sources = sorted(Sources, key= lambda e:FitnessFunction(hives[0],e))
-                    print('hurray!')
-                    flowers.remove(GlobalBestFlower)
-                    FLOWER.remove(GlobalBestFlower)
+                #if GlobalBestSource in flowers:
+                    #s = {'pos':(GlobalBestFlower.x,GlobalBestFlower.y),'val':FitnessFunction(hives[0],GlobalBestFlower),'fsize':GlobalBestFlower.size}
+                Sources.remove(GlobalBestSource)
+                Sources = sorted(Sources, key= lambda e:e.val)
+                
+                if GlobalBestSource in flowers:
+                    flowers.remove(GlobalBestSource)
+                    FLOWER.remove(GlobalBestSource)
+                    
+                if len(Sources)>0:
+                    GlobalBestSource = Sources[0]
+                else:
+                    GlobalBestSource = -1
+                print('hurray!')
+                    
                 
                 #flowers.remove(GlobalBestFlower)
         
