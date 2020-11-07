@@ -708,7 +708,7 @@ class Hive(pg.sprite.Sprite):
     def draw(self):
         tot=onlooker_size
         self.hit_box = (self.x - 32, self.y + 11, 29, 52)
-        pg.draw.rect(screen, (0, 255, 255), (self.hit_box[0], self.hit_box[1] - 70, 60, 6))
+        pg.draw.rect(screen, (255,215,0), (self.hit_box[0], self.hit_box[1] - 70, 60, 6))
         #print('self.food: ',self.food)
         pg.draw.rect(screen, (255, 250, 250),
                          (self.hit_box[0] + self.honey * 4 *(10/tot), self.hit_box[1] - 70, 60 - self.honey * 4 *(10/tot), 6))
