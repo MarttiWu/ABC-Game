@@ -13,6 +13,7 @@ import numpy as np
 #######################################
 ###    Bees behavior parameters    ###
 #######################################
+randomWalkProb=0.5
 a_radius=50
 s_radius=20
 c_radius=40
@@ -22,6 +23,8 @@ maxspeed=5.0
 numbers = list(range(-15,-1)) + list(range(1,15))
 
 step=4
+
+Ereturn = 1000
 
 #######################
 ###    image size   ###
@@ -62,22 +65,23 @@ buttonfont = pg.font.SysFont('Arial',16)
 
 
 #load images
-img = {'E1':pg.transform.scale(pg.image.load('images/employee1.png'), beeimgsize),
-        'E2':pg.transform.scale(pg.image.load('images/employee2.png'), beeimgsize),
-        'E3':pg.transform.scale(pg.image.load('images/employee3.png'), beeimgsize),
-        'E4':pg.transform.scale(pg.image.load('images/employee4.png'), beeimgsize),
-        'E5':pg.transform.scale(pg.image.load('images/employee5.png'), beeimgsize),
-        'E6':pg.transform.scale(pg.image.load('images/employee6.png'), beeimgsize),
-        'E7':pg.transform.scale(pg.image.load('images/employee7.png'), beeimgsize),
-        'E8':pg.transform.scale(pg.image.load('images/employee8.png'), beeimgsize),
-        'O1':pg.transform.scale(pg.image.load('images/onlooker1.png'), beeimgsize),
-        'O2':pg.transform.scale(pg.image.load('images/onlooker2.png'), beeimgsize),
-        'O3':pg.transform.scale(pg.image.load('images/onlooker3.png'), beeimgsize),
-        'O4':pg.transform.scale(pg.image.load('images/onlooker4.png'), beeimgsize),
-        'O5':pg.transform.scale(pg.image.load('images/onlooker5.png'), beeimgsize),
-        'O6':pg.transform.scale(pg.image.load('images/onlooker6.png'), beeimgsize),
-        'O7':pg.transform.scale(pg.image.load('images/onlooker7.png'), beeimgsize),
-        'O8':pg.transform.scale(pg.image.load('images/onlooker8.png'), beeimgsize),
+img = {
+#        'E1':pg.transform.scale(pg.image.load('images/employee1.png'), beeimgsize),
+#        'E2':pg.transform.scale(pg.image.load('images/employee2.png'), beeimgsize),
+#        'E3':pg.transform.scale(pg.image.load('images/employee3.png'), beeimgsize),
+#        'E4':pg.transform.scale(pg.image.load('images/employee4.png'), beeimgsize),
+#        'E5':pg.transform.scale(pg.image.load('images/employee5.png'), beeimgsize),
+#        'E6':pg.transform.scale(pg.image.load('images/employee6.png'), beeimgsize),
+#        'E7':pg.transform.scale(pg.image.load('images/employee7.png'), beeimgsize),
+#        'E8':pg.transform.scale(pg.image.load('images/employee8.png'), beeimgsize),
+#        'O1':pg.transform.scale(pg.image.load('images/onlooker1.png'), beeimgsize),
+#        'O2':pg.transform.scale(pg.image.load('images/onlooker2.png'), beeimgsize),
+#        'O3':pg.transform.scale(pg.image.load('images/onlooker3.png'), beeimgsize),
+#        'O4':pg.transform.scale(pg.image.load('images/onlooker4.png'), beeimgsize),
+#        'O5':pg.transform.scale(pg.image.load('images/onlooker5.png'), beeimgsize),
+#        'O6':pg.transform.scale(pg.image.load('images/onlooker6.png'), beeimgsize),
+#        'O7':pg.transform.scale(pg.image.load('images/onlooker7.png'), beeimgsize),
+#        'O8':pg.transform.scale(pg.image.load('images/onlooker8.png'), beeimgsize),
         'GRASS':pg.transform.scale(pg.image.load('images/grass.png'), graimgsize),
         'FLOWER1':pg.transform.scale(pg.image.load('images/flower1.png'), floimgsize1),
         'FLOWER2':pg.transform.scale(pg.image.load('images/flower2.png'), floimgsize2),
@@ -97,7 +101,6 @@ img = {'E1':pg.transform.scale(pg.image.load('images/employee1.png'), beeimgsize
 
 Sources = []
 GlobalBestSource = -1
-#GlobalBestFlower = -1
 
 def FitnessFunction(hive,flower):
     distance = math.sqrt( ((hive.x-flower.x)**2)+((hive.y-flower.y)**2) )
@@ -113,38 +116,22 @@ def FitnessFunction(hive,flower):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 class Onlooker(pg.sprite.Sprite):
     
     def __init__(self,x,dx,y,dy):
         super().__init__()
-        self.image = img['O1']
+        self.image = img['oru']
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.x = x
         self.y = y
         self.dx = dx
         self.dy = dy
-        #self.source = {'pos':[-10,-10],'val':-1}
         self.source = -1
         self.carry = 0
-        #self.localbest = {'pos':[-10,-10],'val':-1}
-        #self.globalbest = {'pos':[-10,-10],'val':-1} #obtained in hive
-        #self.aneighbors = []
-        #self.cneighbors = []
         self.sneighbors = []
-        #self.count=15
         self.wing=1
+        self.globest = -1
         
     def draw(self,obstacles):
         #goes oppsite direction when reaches the boundaries
@@ -160,14 +147,7 @@ class Onlooker(pg.sprite.Sprite):
         if self.y<0:
             self.y = -self.y
             self.dy = -self.dy
-        '''
-        #check for collision with obstacles
-        if self.is_collided_with(obstacles):
-            self.dx = -self.dx
-            self.dy = -self.dy
-            self.x += random.choice(numbers)*2
-            self.y += random.choice(numbers)*2
-        '''
+
         #change image for different directions
 #        if self.dx==0 and self.dy<0:
 #            self.image = img['O1']
@@ -205,7 +185,6 @@ class Onlooker(pg.sprite.Sprite):
                     
         
     def separation(self):
-        #print('number of neighbors: ',len(self.sneighbors))
         sV = np.zeros(2)
         if not self.sneighbors:
             return sV
@@ -225,30 +204,24 @@ class Onlooker(pg.sprite.Sprite):
         
             
     def arrivedSource(self):
-        global GlobalBestSource
-        x = GlobalBestSource.x
-        y = GlobalBestSource.y
+        x = self.globest.x
+        y = self.globest.y
         floimgsize = (0,0)
-        if GlobalBestSource.size=='FLOWER1':
+        if self.globest.size=='FLOWER1':
             floimgsize = floimgsize1
-        elif GlobalBestSource.size=='FLOWER2':
+        elif self.globest.size=='FLOWER2':
             floimgsize = floimgsize2
-        elif GlobalBestSource.size=='FLOWER3':
+        elif self.globest.size=='FLOWER3':
             floimgsize = floimgsize3
         
         if ((self.x>x-floimgsize[0]//2-5) and (self.x<x+floimgsize[0]//2+5)) and ((self.y>y-floimgsize[1]//2-5) and (self.y<y+floimgsize[1]//2+5)):
-            #print('self.x: ',self.x,'self.y:',self.y)
-            #print('flower.x: ',flower.x,'flower.y:',flower.y)
-            #self.source['pos'] = (flower.x,flower.y)
-            #self.source['val'] = FitnessFunction(hives[0],flower)
-            #print(self.source)
             return True
             
         return False
                 
     def atHome(self,hives):
         for h in hives:
-            if self.x>h.x-hiveimgsize[0]//2+20 and self.x<h.x+hiveimgsize[0]//2-20 and self.y>h.y-hiveimgsize[1]//2+20 and self.y<h.y+hiveimgsize[1]//2-20:
+            if self.x>h.x-hiveimgsize[0]//2+30 and self.x<h.x+hiveimgsize[0]//2-30 and self.y>h.y-hiveimgsize[1]//2+30 and self.y<h.y+hiveimgsize[1]//2-30:
                 return True
                 
         return False
@@ -259,43 +232,30 @@ class Onlooker(pg.sprite.Sprite):
         if self.is_collided_with(obstacles):
             self.dx = -self.dx
             self.dy = -self.dy
-#            self.x += (self.dx+random.uniform(0,0.5))*rockimgsize[0]//2
-#            self.y += (self.dy+random.uniform(0,0.5))*rockimgsize[1]//2
-            #self.dx = 1
-            #self.dy = 0
             self.x += self.dx*step
             self.y += self.dy*step
             return
         
-        if GlobalBestSource!=-1 and self.carry==0 and self.arrivedSource():
+        if self.globest!=-1 and self.carry==0 and self.arrivedSource():
             self.carry=1
             self.dx = -self.dx
             self.dy = -self.dy
             self.x += self.dx*step
             self.y += self.dy*step
-            #self.dx=0
-            #self.dy=0
-            GlobalBestSource.food-=1
+            self.globest.food-=1
             
-            print('food: ',GlobalBestSource.food)
+            print('food: ',self.globest.food)
             return
         
-        #print('self.carry: ',self.carry)
         #Return to hive with food and store
         if self.carry==1:
             if self.atHome(hives):
-#                Sources.append(self.source)
-#                if self.count<0:
-#                    self.carry=0
-#                    self.count=15
                 self.carry=0
                 self.dx=0
                 self.dy=0
+                self.globest = GlobalBestSource
 
-#               self.count-=1
-#               print('count: ',self.count)
             else:
-                #self.count=3
                 dx = hives[0].x-self.x
                 dy = hives[0].y-self.y
                 #prevent divide by 0
@@ -311,10 +271,9 @@ class Onlooker(pg.sprite.Sprite):
         
         else:
             #If any source found by employee, go to global best source
-            if len(Sources)>0:
-                #print(GlobalBestSource)
-                dx = GlobalBestSource.x-self.x
-                dy = GlobalBestSource.y-self.y
+            if self.globest!=-1:
+                dx = self.globest.x-self.x
+                dy = self.globest.y-self.y
                 
                 if np.linalg.norm(np.array([dx,dy]))==0:
                     divisor = 0.01
@@ -327,6 +286,8 @@ class Onlooker(pg.sprite.Sprite):
             else:
                 self.dx=0
                 self.dy=0
+                self.globest = GlobalBestSource
+        #Commented to make the picture not too messy
         '''
         #separation
         #self.find_neighbors(other)
@@ -340,6 +301,7 @@ class Onlooker(pg.sprite.Sprite):
         self.dx += V[0]
         self.dy += V[1]
         '''
+        
     def find_neighbors(self,other):
         self.sneighbors.clear()
         for o in other:
@@ -348,20 +310,7 @@ class Onlooker(pg.sprite.Sprite):
                     self.sneighbors.append(o)
                     
                 
-            
-            
     def is_collided_with(self, obstacles):
-        '''
-        bee = [(self.x+beeimgsize[0]//2,self.y+beeimgsize[1]//2),(self.x+beeimgsize[0]//2,self.y-beeimgsize[1]//2),(self.x-beeimgsize[0]//2,self.y+beeimgsize[1]//2),(self.x-beeimgsize[0]//2,self.y-beeimgsize[1]//2)]
-        for ob in obstacles:
-            #if self.x + int(self.dx*step) > ob.x-rockimgsize[0]//2 and self.x + int(self.dx*step) < ob.x+rockimgsize[0]//2 and self.y + int(self.dy*step) > ob.y-rockimgsize[1]//2 and self.y + int(self.dy*step) > ob.y+rockimgsize[1]//2:
-            for b in bee:
-                if (b[0] > ob.x-rockimgsize[0]//2) and (b[0] < ob.x+rockimgsize[0]//2) and (b[1] > ob.y-rockimgsize[1]//2) and (b[1] > ob.y+rockimgsize[1]//2):
-                    print('self.x: ',self.x)
-                    print('ob.x: ',ob.x)
-                    print('rockimgsize[0]//2: ',rockimgsize[0]//2)
-                    return True
-        '''
         for ob in obstacles:
             if ((self.x > ob.x-rockimgsize[0]//2) and (self.x < ob.x+rockimgsize[0]//2)) and ((self.y > ob.y-rockimgsize[1]//2) and (self.y < ob.y+rockimgsize[1]//2)):
                 print('self.x: ',self.x)
@@ -376,9 +325,7 @@ class Onlooker(pg.sprite.Sprite):
         
 
 def init_onlookers():
-    #random.choice(numbers)
-    #dx = random.uniform(-1, 1)
-    #dy = random.uniform(-1, 1)
+
     onlookers = [Onlooker(hiveimgsize[0]//2+10,0,windowsize[1]-hiveimgsize[1]//2-60,0) for i in range(onlooker_size)]
     
     ONLOOKER = pg.sprite.Group()
@@ -397,7 +344,7 @@ def init_onlookers():
 
 
 
-
+boolchoice = [True,False]
 
 
 class Employee(pg.sprite.Sprite):
@@ -411,19 +358,27 @@ class Employee(pg.sprite.Sprite):
         self.y = y
         self.dx = dx
         self.dy = dy
-        #self.source = {'pos':[-10,-10],'val':-1,'fsize':''}
         self.source = -1
         self.foundFlower = -1
         self.carry = 0
-        #self.localbest = {'pos':[-10,-10],'val':-1}
-        #self.globalbest = {'pos':[-10,-10],'val':-1} #obtained in hive
-        #self.aneighbors = []
-        #self.cneighbors = []
         self.sneighbors = []
         self.count=15
         self.wing = 1
+        self.back=Ereturn
+        self.globest = -1
+        self.globalsearch = random.choice(boolchoice)
+        self.acheive=False
+        self.hit_box = (self.x + 17, self.y + 11, 29, 52)
         
     def draw(self,obstacles):
+        life = 1 if self.back<=0 else self.back
+
+        self.hit_box = (self.x - 17, self.y + 11, 29, 52)
+        pg.draw.rect(screen, (0, 128, 0), (self.hit_box[0], self.hit_box[1] - 30, 40, 6))
+        #print('self.back: ',self.back)
+        pg.draw.rect(screen, (255, 0, 0),
+                         (self.hit_box[0] + life * 4 *(10/Ereturn), self.hit_box[1] - 30, 40 - life * 4 *(10/Ereturn), 6))
+    
         #goes oppsite direction when reaches the boundaries
         if self.x>800:
             self.x = 1600-self.x
@@ -482,26 +437,7 @@ class Employee(pg.sprite.Sprite):
         self.x += int(self.dx*step)
         self.y += int(self.dy*step)
                     
-        
-    def separation(self):
-        sV = np.zeros(2)
-        if not self.sneighbors:
-            return sV
-        for n in self.sneighbors:
-            sV[0]+=self.x-n.x
-            sV[1]+=self.y-n.y
-        sV/=len(self.sneighbors)
-        
-        uu = np.linalg.norm(sV)
-        #prevent divided by 0
-        if uu==0:
-            uu=0.01
                 
-        sV = (sV/uu)*maxspeed
-    
-        return sV
-        
-            
     def foundSource(self,flowers,hives):
         for flower in flowers:
             if flower.size=='FLOWER1':
@@ -512,17 +448,10 @@ class Employee(pg.sprite.Sprite):
                 floimgsize = floimgsize3
         
             if ((self.x>flower.x-floimgsize[0]//2-5) and (self.x<flower.x+floimgsize[0]//2+5)) and ((self.y>flower.y-floimgsize[1]//2-5) and (self.y<flower.y+floimgsize[1]//2+5)):
-                #print('self.x: ',self.x,'self.y:',self.y)
-                #print('flower.x: ',flower.x,'flower.y:',flower.y)
-                #self.source['pos'] = (flower.x,flower.y)
-                #self.source['val'] = FitnessFunction(hives[0],flower)
-                #self.source['fsize'] = flower.size
                 self.foundFlower = flower
                 self.source = flower
                 self.source.val = FitnessFunction(hives[0],flower)
-                #print(self.source)
                 return True
-            
         return False
                 
     def atHome(self,hives):
@@ -531,38 +460,57 @@ class Employee(pg.sprite.Sprite):
                 return True
         return False
     
+    def isNearGlobal(self):
+        a = math.sqrt( ((self.x-self.globest.x)**2)+((self.y-self.globest.y)**2) ) < step*2
+        self.acheive = a
+        return a
+    
     def update_direction(self,other,flowers,hives,obstacles):
+        self.back-=1
         global GlobalBestSource
         #global GlobalBestFlower
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
             self.dx = -self.dx
             self.dy = -self.dy
-#            self.x += (self.dx+random.uniform(0,0.5))*rockimgsize[0]//2
-#            self.y += (self.dy+random.uniform(0,0.5))*rockimgsize[1]//2
-            #self.dx = 1
-            #self.dy = 0
             self.x += self.dx*step
             self.y += self.dy*step
             return
-    
+            
+        #go home after Ereturn iterations
+        if self.back<=0:
+            if self.atHome(hives):
+                self.globest = GlobalBestSource
+                self.back=Ereturn
+                self.acheive=False
+                print('Time up, back home!')
+            else:
+                #self.count=3
+                dx = hives[0].x-self.x
+                dy = hives[0].y-self.y
+                self.dx = dx/np.linalg.norm(np.array([dx,dy]))
+                self.dy = dy/np.linalg.norm(np.array([dx,dy]))
+            return
+        
         #Return to hive with food and store and dance
         if self.carry==1:
             if self.atHome(hives):
                 if GlobalBestSource==-1 or self.source.val>GlobalBestSource.val:
                     GlobalBestSource = self.source
-                    #GlobalBestFlower = self.foundFlower
                 Sources.append(self.source)
                 if self.count<0:
                     self.carry=0
                     self.count=15
                 self.dx=0
                 self.dy=0
-
+    
                 self.count-=1
                 print('count: ',self.count)
+                self.globest = GlobalBestSource
+                
+                self.back=Ereturn
+                
             else:
-                #self.count=3
                 dx = hives[0].x-self.x
                 dy = hives[0].y-self.y
                 self.dx = dx/np.linalg.norm(np.array([dx,dy]))
@@ -575,44 +523,38 @@ class Employee(pg.sprite.Sprite):
             self.dx=0
             self.dy=0
             return
-    
-        dx = random.uniform(-1, 1)
-        dy = random.uniform(-1, 1)
-        dx += self.dx*2
-        dy += self.dy*2
-        #No source been found among all employees, random walk
-        #if len(Sources)==0:
-        self.dx = dx/np.linalg.norm(np.array([dx,dy]))
-        self.dy = dy/np.linalg.norm(np.array([dx,dy]))
-        '''
-        #At least one employee has found source
+        
+        #random walk
+        p = random.uniform(0,1)
+        
+        if self.globest==-1 or self.isNearGlobal() or self.acheive or self.globalsearch:
+                
+            dx = random.uniform(-1, 1)
+            dy = random.uniform(-1, 1)
+            dx += self.dx*2
+            dy += self.dy*2
+            self.dx = dx/np.linalg.norm(np.array([dx,dy]))
+            self.dy = dy/np.linalg.norm(np.array([dx,dy]))
+        #local search
         else:
-            #Employee that didn't find a source
-            if self.source['pos']==[-10,-10]:
-                #probability 0.5 to go to best source
-                p = random.uniform(0, 1)
-                if p>0.5:
-                    dx = GlobalBestSource['pos'][0]-self.x
-                    dy = GlobalBestSource['pos'][1]-self.y
-                    self.dx = dx/np.linalg.norm(np.array([dx,dy]))
-                    self.dy = dy/np.linalg.norm(np.array([dx,dy]))
-                #probability 0.5 to random walk
-                else:
-                    self.dx = dx/np.linalg.norm(np.array([dx,dy]))
-                    self.dy = dy/np.linalg.norm(np.array([dx,dy]))
-        '''
-                    
-         #separation
-#        self.find_neighbors(other)
-#        V = np.zeros(2)
-#        V += self.separation()
-#        #prevent divided by 0
-#        uu = np.linalg.norm(V)
-#        if uu==0:
-#            uu=0.01
-#
-#        self.dx = V[0]
-#        self.dy = V[1]
+            dx = self.globest.x-self.x
+            dy = self.globest.y-self.y
+            
+            if np.linalg.norm(np.array([dx,dy]))==0:
+                divisor = 0.01
+            else:
+                divisor = np.linalg.norm(np.array([dx,dy]))
+            
+            dx = dx/divisor
+            dy = dy/divisor
+            
+            dx += random.uniform(0,1)
+            dy += random.uniform(0,1)
+
+            dx += self.dx*2
+            dy += self.dy*2
+            self.dx = dx/np.linalg.norm(np.array([dx,dy]))
+            self.dy = dy/np.linalg.norm(np.array([dx,dy]))
                     
     def find_neighbors(self,other):
         self.sneighbors.clear()
@@ -625,17 +567,6 @@ class Employee(pg.sprite.Sprite):
             
             
     def is_collided_with(self, obstacles):
-        '''
-        bee = [(self.x+beeimgsize[0]//2,self.y+beeimgsize[1]//2),(self.x+beeimgsize[0]//2,self.y-beeimgsize[1]//2),(self.x-beeimgsize[0]//2,self.y+beeimgsize[1]//2),(self.x-beeimgsize[0]//2,self.y-beeimgsize[1]//2)]
-        for ob in obstacles:
-            #if self.x + int(self.dx*step) > ob.x-rockimgsize[0]//2 and self.x + int(self.dx*step) < ob.x+rockimgsize[0]//2 and self.y + int(self.dy*step) > ob.y-rockimgsize[1]//2 and self.y + int(self.dy*step) > ob.y+rockimgsize[1]//2:
-            for b in bee:
-                if (b[0] > ob.x-rockimgsize[0]//2) and (b[0] < ob.x+rockimgsize[0]//2) and (b[1] > ob.y-rockimgsize[1]//2) and (b[1] > ob.y+rockimgsize[1]//2):
-                    print('self.x: ',self.x)
-                    print('ob.x: ',ob.x)
-                    print('rockimgsize[0]//2: ',rockimgsize[0]//2)
-                    return True
-        '''
         for ob in obstacles:
             if ((self.x > ob.x-rockimgsize[0]//2) and (self.x < ob.x+rockimgsize[0]//2)) and ((self.y > ob.y-rockimgsize[1]//2) and (self.y < ob.y+rockimgsize[1]//2)):
                 print('self.x: ',self.x)
@@ -650,7 +581,6 @@ class Employee(pg.sprite.Sprite):
         
 
 def init_employees():
-    #random.choice(numbers)
     dx = random.uniform(-1, 1)
     dy = random.uniform(-1, 1)
     employees = [Employee(hiveimgsize[0]//2+10,dx/np.linalg.norm(np.array([dx,dy])),windowsize[1]-hiveimgsize[1]//2-60,dy/np.linalg.norm(np.array([dx,dy]))) for i in range(employee_size)]
@@ -695,14 +625,29 @@ class Flower(pg.sprite.Sprite):
         self.size = size
         self.food=0
         self.val = -1
+        self.hit_box = (self.x + 17, self.y + 11, 29, 52)
         if size=='FLOWER1':
             self.food=onlooker_size
         elif size=='FLOWER2':
             self.food=onlooker_size*3
-        elif size=='FLOWER1':
+        elif size=='FLOWER3':
             self.food=onlooker_size*9
         
     def draw(self):
+        life = 0 if self.food<=0 else self.food
+        tot=1
+        if self.size=='FLOWER1':
+            tot=onlooker_size
+        elif self.size=='FLOWER2':
+            tot=onlooker_size*3
+        elif self.size=='FLOWER3':
+            tot=onlooker_size*9
+        
+        self.hit_box = (self.x - 17, self.y + 11, 29, 52)
+        pg.draw.rect(screen, (0, 255, 255), (self.hit_box[0], self.hit_box[1] - 40, 40, 6))
+        #print('self.food: ',self.food)
+        pg.draw.rect(screen, (255, 250, 250),
+                         (self.hit_box[0] + life * 4 *(10/tot), self.hit_box[1] - 40, 40 - life * 4 *(10/tot), 6))
         self.rect.center = (self.x,self.y)
 
 def init_flower():
@@ -716,7 +661,6 @@ def init_flower():
     for i in range(1):
         flowers.append(Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),'FLOWER3'))
         
-    #flowers.append(Flower(50,50,'flower3'))
     FLOWER = pg.sprite.Group()
     for f in flowers:
         FLOWER.add(f)
@@ -738,7 +682,7 @@ class Grass(pg.sprite.Sprite):
         self.rect.center = (self.x,self.y)
 
 def init_grass():
-    grass = [Grass(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5)) for i in range(20)]
+    grass = [Grass(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5)) for i in range(40)]
     
     GRASS = pg.sprite.Group()
     for g in grass:
@@ -771,8 +715,10 @@ def init_hive():
 
 def main():
     global GlobalBestSource
-    #global GlobalBestFlower
     global Sources
+    
+    flowerchoice = ['FLOWER1','FLOWER2','FLOWER3']
+    
     clock = pg.time.Clock()
 
     employees,EMPLOYEE = init_employees()
@@ -781,10 +727,6 @@ def main():
     flowers,FLOWER = init_flower()
     hives,HIVE = init_hive()
     grass,GRASS = init_grass()
-    
-    
-#    for f in flowers:
-#        print('flower: ',f.x,f.y)
     
     running = True
     START=False
@@ -810,9 +752,7 @@ def main():
                     START=True
                     
                 if 250 <= mouse[0] <= 350 and 560 <= mouse[1] <= 580:
-                    GlobalBestSource.clear()
                     GlobalBestSource = -1
-                    #GlobalBestFlower = -1
                     Sources.clear()
                     employees.clear()
                     EMPLOYEE.empty()
@@ -836,33 +776,32 @@ def main():
         '''
         if START:
             if GlobalBestSource!=-1 and GlobalBestSource.food<=0:
-                print('GlobalBestSource: ',GlobalBestSource)
-                #print('flowers: ',flowers)
-                #print('GlobalBestFlower: ',GlobalBestFlower)
-#                Sources.remove(GlobalBestFlower)
-#                Sources = sorted(Sources, key= lambda e:FitnessFunction(e))
-                #if GlobalBestSource in flowers:
-                    #s = {'pos':(GlobalBestFlower.x,GlobalBestFlower.y),'val':FitnessFunction(hives[0],GlobalBestFlower),'fsize':GlobalBestFlower.size}
+                #print('GlobalBestSource: ',GlobalBestSource)
                 Sources.remove(GlobalBestSource)
                 Sources = sorted(Sources, key= lambda e:e.val)
                 
                 if GlobalBestSource in flowers:
                     flowers.remove(GlobalBestSource)
                     FLOWER.remove(GlobalBestSource)
+                    f = Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),random.choice(flowerchoice))
+                    flowers.append(f)
+                    FLOWER.add(f)
                     
                 if len(Sources)>0:
                     GlobalBestSource = Sources[0]
                 else:
                     GlobalBestSource = -1
                 print('hurray!')
-                    
-                
-                #flowers.remove(GlobalBestFlower)
         
             for ob in obstacles:
                 ob.draw()
             
             OBSTACLE.draw(screen)
+            
+            for g in grass:
+                g.draw()
+            
+            GRASS.draw(screen)
             
             for f in flowers:
                 f.draw()
@@ -874,16 +813,12 @@ def main():
             
             HIVE.draw(screen)
             
-            for g in grass:
-                g.draw()
-            
-            GRASS.draw(screen)
             
             for employee in employees:
                 employee.draw(obstacles)
                 
             for employee in employees:
-                employee.update_direction(employees,flowers,hives,obstacles) #######
+                employee.update_direction(employees,flowers,hives,obstacles)
                 
             EMPLOYEE.draw(screen)
             
@@ -891,7 +826,7 @@ def main():
                 onlooker.draw(obstacles)
                 
             for onlooker in onlookers:
-                onlooker.update_direction(onlookers,flowers,hives,obstacles) #######
+                onlooker.update_direction(onlookers,flowers,hives,obstacles)
                 
             ONLOOKER.draw(screen)
         
