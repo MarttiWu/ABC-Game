@@ -16,7 +16,7 @@ import numpy as np
 a_radius=50
 s_radius=20
 c_radius=40
-employee_size=10
+employee_size=5
 onlooker_size=40
 maxspeed=5.0
 numbers = list(range(-15,-1)) + list(range(1,15))
@@ -89,6 +89,7 @@ img = {'E1':pg.transform.scale(pg.image.load('images/employee1.png'), beeimgsize
 
 Sources = []
 GlobalBestSource = {'pos':[-10,-10],'val':-1,'fsize':''}
+GlobalBestFlower = -1
 
 def FitnessFunction(hive,flower):
     distance = math.sqrt( ((hive.x-flower.x)**2)+((hive.y-flower.y)**2) )
@@ -252,6 +253,9 @@ class Onlooker(pg.sprite.Sprite):
             self.y += self.dy*step
             #self.dx=0
             #self.dy=0
+            GlobalBestFlower.food-=1
+            
+            print('food: ',GlobalBestFlower.food)
             return
         
         #print('self.carry: ',self.carry)
@@ -386,6 +390,7 @@ class Employee(pg.sprite.Sprite):
         self.dx = dx
         self.dy = dy
         self.source = {'pos':[-10,-10],'val':-1,'fsize':''}
+        self.foundFlower = -1
         self.carry = 0
         #self.localbest = {'pos':[-10,-10],'val':-1}
         #self.globalbest = {'pos':[-10,-10],'val':-1} #obtained in hive
@@ -474,6 +479,7 @@ class Employee(pg.sprite.Sprite):
                 self.source['pos'] = (flower.x,flower.y)
                 self.source['val'] = FitnessFunction(hives[0],flower)
                 self.source['fsize'] = flower.size
+                self.foundFlower = flower
                 #print(self.source)
                 return True
             
@@ -487,6 +493,7 @@ class Employee(pg.sprite.Sprite):
     
     def update_direction(self,other,flowers,hives,obstacles):
         global GlobalBestSource
+        global GlobalBestFlower
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
             self.dx = -self.dx
@@ -504,6 +511,7 @@ class Employee(pg.sprite.Sprite):
             if self.atHome(hives):
                 if self.source['val']>GlobalBestSource['val']:
                     GlobalBestSource = self.source
+                    GlobalBestFlower = self.foundFlower
                 Sources.append(self.source)
                 if self.count<0:
                     self.carry=0
@@ -645,15 +653,23 @@ class Flower(pg.sprite.Sprite):
         self.x = x
         self.y = y
         self.size = size
+        self.food=0
+        if size=='FLOWER1':
+            self.food=onlooker_size
+        elif size=='FLOWER2':
+            self.food=onlooker_size*3
+        elif size=='FLOWER1':
+            self.food=onlooker_size*9
+        
     def draw(self):
         self.rect.center = (self.x,self.y)
 
 def init_flower():
     flowers = []
-    for i in range(10):
+    for i in range(3):
         flowers.append(Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),'FLOWER1'))
         
-    for i in range(3):
+    for i in range(1):
         flowers.append(Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),'FLOWER2'))
         
     for i in range(1):
@@ -714,6 +730,8 @@ def init_hive():
 
 def main():
     global GlobalBestSource
+    global GlobalBestFlower
+    global Sources
     clock = pg.time.Clock()
 
     employees,EMPLOYEE = init_employees()
@@ -753,6 +771,7 @@ def main():
                 if 250 <= mouse[0] <= 350 and 560 <= mouse[1] <= 580:
                     GlobalBestSource.clear()
                     GlobalBestSource = {'pos':[-10,-10],'val':-1,'fsize':''}
+                    GlobalBestFlower = -1
                     Sources.clear()
                     employees.clear()
                     EMPLOYEE.empty()
@@ -775,6 +794,20 @@ def main():
             Game start
         '''
         if START:
+            if GlobalBestFlower!=-1 and GlobalBestFlower.food<=0:
+                print('flowers: ',flowers)
+                print('GlobalBestFlower: ',GlobalBestFlower)
+#                Sources.remove(GlobalBestFlower)
+#                Sources = sorted(Sources, key= lambda e:FitnessFunction(e))
+                if GlobalBestFlower in flowers:
+                    s = {'pos':(GlobalBestFlower.x,GlobalBestFlower.y),'val':FitnessFunction(hives[0],GlobalBestFlower),'fsize':GlobalBestFlower.size}
+                    Sources.remove(s)
+                    Sources = sorted(Sources, key= lambda e:FitnessFunction(hives[0],e))
+                    print('hurray!')
+                    flowers.remove(GlobalBestFlower)
+                    FLOWER.remove(GlobalBestFlower)
+                
+                #flowers.remove(GlobalBestFlower)
         
             for ob in obstacles:
                 ob.draw()
