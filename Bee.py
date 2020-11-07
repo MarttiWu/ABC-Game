@@ -254,6 +254,7 @@ class Onlooker(pg.sprite.Sprite):
                 self.dx=0
                 self.dy=0
                 self.globest = GlobalBestSource
+                hives[0].honey+=1
 
             else:
                 dx = hives[0].x-self.x
@@ -701,8 +702,19 @@ class Hive(pg.sprite.Sprite):
         self.rect.center = (x, y)
         self.x = x
         self.y = y
+        self.honey = onlooker_size #???
+        self.count = 0
+        self.hit_box = (self.x -17, self.y + 11, 29, 52)
     def draw(self):
+        tot=onlooker_size
+        self.hit_box = (self.x - 32, self.y + 11, 29, 52)
+        pg.draw.rect(screen, (0, 255, 255), (self.hit_box[0], self.hit_box[1] - 70, 60, 6))
+        #print('self.food: ',self.food)
+        pg.draw.rect(screen, (255, 250, 250),
+                         (self.hit_box[0] + self.honey * 4 *(10/tot), self.hit_box[1] - 70, 60 - self.honey * 4 *(10/tot), 6))
         self.rect.center = (self.x,self.y)
+        self.rect.center = (self.x,self.y)
+        
 
 def init_hive():
     hives = [Hive(hiveimgsize[0]//2+10,windowsize[1]-hiveimgsize[1]//2-60)]
@@ -752,6 +764,7 @@ def main():
                     START=True
                     
                 if 250 <= mouse[0] <= 350 and 560 <= mouse[1] <= 580:
+                    hives[0].honey=onlooker_size
                     GlobalBestSource = -1
                     Sources.clear()
                     employees.clear()
@@ -775,6 +788,15 @@ def main():
             Game start
         '''
         if START:
+            if hives[0].honey<=0:
+                print('Game Over!')
+            if hives[0].honey>onlooker_size:
+                hives[0].honey=onlooker_size
+            hives[0].count+=1
+            if hives[0].count%(onlooker_size/2)==0:
+                hives[0].honey-=1
+            if hives[0].count>1000:
+                hives[0].count=0
             if GlobalBestSource!=-1 and GlobalBestSource.food<=0:
                 #print('GlobalBestSource: ',GlobalBestSource)
                 Sources.remove(GlobalBestSource)
