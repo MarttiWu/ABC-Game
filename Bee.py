@@ -130,6 +130,13 @@ def RouletteWheelSelection():
     return -1
 
 
+def rotate(origin, point, angle):
+    ox, oy = origin
+    px, py = point
+    qx = ox + math.cos(angle) * (px - ox) - math.sin(angle) * (py - oy)
+    qy = oy + math.sin(angle) * (px - ox) + math.cos(angle) * (py - oy)
+    return qx, qy
+
 class Onlooker(pg.sprite.Sprite):
     
     def __init__(self,x,dx,y,dy):
@@ -246,10 +253,13 @@ class Onlooker(pg.sprite.Sprite):
         print('self.globest: ',self.globest)
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
-            self.dx = -self.dx
-            self.dy = -self.dy
-            self.x += self.dx*step
-            self.y += self.dy*step
+            dx,dy = rotate((0,0),(self.dx,self.dy),math.radians(270))
+            #self.dx = -self.dx/2
+            #self.dy = -self.dy
+            #self.x += self.dx*step*5
+            #self.y += self.dy*step*5
+            self.x += dx*step*1
+            self.y += dy*step*1
             return
         
         if self.globest!=-1 and self.carry==0 and self.arrivedSource():
@@ -487,10 +497,13 @@ class Employee(pg.sprite.Sprite):
         #global GlobalBestFlower
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
-            self.dx = -self.dx
-            self.dy = -self.dy
-            self.x += self.dx*step
-            self.y += self.dy*step
+            dx,dy = rotate((0,0),(self.dx,self.dy),math.radians(270))
+            #self.dx = -self.dx/2
+            #self.dy = -self.dy
+            #self.x += self.dx*step*5
+            #self.y += self.dy*step*5
+            self.x += dx*step*1
+            self.y += dy*step*1
             return
             
         #go home after Ereturn iterations
