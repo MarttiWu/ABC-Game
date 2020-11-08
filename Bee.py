@@ -35,18 +35,20 @@ floimgsize1=(20,20) #flower1 image size
 floimgsize2=(30,30) #flower1 image size
 floimgsize3=(40,40) #flower1 image size
 graimgsize=(20,20) #grass image size
-rockimgsize = (40,40) #obstacle image size
+srockimgsize = (30,30) #obstacle image size
+brockimgsize = (60,50) #obstacle image size
 
 
 #initialize window
+#windowsize = (1000,800)
 windowsize = (800,600)
 pg.init()
 screen = pg.display.set_mode(windowsize)
 pg.display.set_caption("Bee Colony")
 background = pg.image.load('images/background.png')
 background.convert()
-screen.blit(background,(0,0))
-#bkgcolor = (205,133,63)
+screen.blit(background,(-5,-5))
+bkgcolor = (0,0,0)
 #screen.fill(bkgcolor)
 
 ###################################
@@ -61,7 +63,7 @@ ob_light = (51,255,255)
 ob_dark = (0,204,204)
 qu_light = (32,32,32)
 qu_dark = (0,0,0)
-buttonfont = pg.font.SysFont('Arial',16)
+buttonfont = pg.font.SysFont('Arial',20)
 
 
 #load images
@@ -87,8 +89,8 @@ img = {
         'FLOWER2':pg.transform.scale(pg.image.load('images/flower2.png'), floimgsize2),
         'FLOWER3':pg.transform.scale(pg.image.load('images/flower3.png'), floimgsize3),
         'HIVE':pg.transform.scale(pg.image.load('images/hive.png'), hiveimgsize),
-        'SMALLROCK':pg.transform.scale(pg.image.load('images/smallrock.png'), rockimgsize),
-        'BIGROCK':pg.transform.scale(pg.image.load('images/bigrock.png'), rockimgsize),
+        'SMALLROCK':pg.transform.scale(pg.image.load('images/smallrock.png'), srockimgsize),
+        'BIGROCK':pg.transform.scale(pg.image.load('images/bigrock.png'), brockimgsize),
         'eru':pg.transform.scale(pg.image.load('images/e_ru.png'), beeimgsize),
         'erd':pg.transform.scale(pg.image.load('images/e_rd.png'), beeimgsize),
         'elu':pg.transform.scale(pg.image.load('images/e_lu.png'), beeimgsize),
@@ -147,14 +149,14 @@ class Onlooker(pg.sprite.Sprite):
         
     def draw(self,obstacles):
         #goes oppsite direction when reaches the boundaries
-        if self.x>800:
-            self.x = 1600-self.x
+        if self.x>windowsize[0]: #800
+            self.x = windowsize[0]*2-self.x #1600
             self.dx = -self.dx
         if self.x<0:
             self.x = -self.x
             self.dx = -self.dx
-        if self.y>600:
-            self.y = 1200-self.y
+        if self.y>windowsize[1]-100:#600
+            self.y = (windowsize[1]-100)*2-self.y #1200
             self.dy = -self.dy
         if self.y<0:
             self.y = -self.y
@@ -327,21 +329,20 @@ class Onlooker(pg.sprite.Sprite):
                 
     def is_collided_with(self, obstacles):
         for ob in obstacles:
-            if ((self.x > ob.x-rockimgsize[0]//2) and (self.x < ob.x+rockimgsize[0]//2)) and ((self.y > ob.y-rockimgsize[1]//2) and (self.y < ob.y+rockimgsize[1]//2)):
-                print('self.x: ',self.x)
-                print('ob.x: ',ob.x)
-                print('rockimgsize[0]//2: ',rockimgsize[0]//2)
-                print('self.y: ',self.y)
-                print('ob.y: ',ob.y)
-                print('rockimgsize[1]//2: ',rockimgsize[1]//2)
+            if ((self.x > ob.x-ob.width//2) and (self.x < ob.x+ob.width//2)) and ((self.y > ob.y-ob.height//2) and (self.y < ob.y+ob.height//2)):
+#                print('self.x: ',self.x)
+#                print('ob.x: ',ob.x)
+#                print('rockimgsize[0]//2: ',rockimgsize[0]//2)
+#                print('self.y: ',self.y)
+#                print('ob.y: ',ob.y)
+#                print('rockimgsize[1]//2: ',rockimgsize[1]//2)
                 return True
                     
         return False
         
 
 def init_onlookers():
-
-    onlookers = [Onlooker(hiveimgsize[0]//2+10,0,windowsize[1]-hiveimgsize[1]//2-60,0) for i in range(onlooker_size)]
+    onlookers = [Onlooker(hiveimgsize[0]//2+20,0,windowsize[1]-hiveimgsize[1]//2-100,0) for i in range(onlooker_size)]
     
     ONLOOKER = pg.sprite.Group()
 
@@ -395,14 +396,14 @@ class Employee(pg.sprite.Sprite):
                          (self.hit_box[0] + life * 4 *(10/Ereturn), self.hit_box[1] - 30, 40 - life * 4 *(10/Ereturn), 6))
     
         #goes oppsite direction when reaches the boundaries
-        if self.x>800:
-            self.x = 1600-self.x
+        if self.x>windowsize[0]: #800
+            self.x = windowsize[0]*2-self.x #1600
             self.dx = -self.dx
         if self.x<0:
             self.x = -self.x
             self.dx = -self.dx
-        if self.y>600:
-            self.y = 1200-self.y
+        if self.y>windowsize[1]-100: #600
+            self.y = (windowsize[1]-100)*2-self.y #1200
             self.dy = -self.dy
         if self.y<0:
             self.y = -self.y
@@ -583,13 +584,13 @@ class Employee(pg.sprite.Sprite):
             
     def is_collided_with(self, obstacles):
         for ob in obstacles:
-            if ((self.x > ob.x-rockimgsize[0]//2) and (self.x < ob.x+rockimgsize[0]//2)) and ((self.y > ob.y-rockimgsize[1]//2) and (self.y < ob.y+rockimgsize[1]//2)):
-                print('self.x: ',self.x)
-                print('ob.x: ',ob.x)
-                print('rockimgsize[0]//2: ',rockimgsize[0]//2)
-                print('self.y: ',self.y)
-                print('ob.y: ',ob.y)
-                print('rockimgsize[1]//2: ',rockimgsize[1]//2)
+            if ((self.x > ob.x-ob.width//2) and (self.x < ob.x+ob.width//2)) and ((self.y > ob.y-ob.height//2) and (self.y < ob.y+ob.height//2)):
+#                print('self.x: ',self.x)
+#                print('ob.x: ',ob.x)
+#                print('rockimgsize[0]//2: ',rockimgsize[0]//2)
+#                print('self.y: ',self.y)
+#                print('ob.y: ',ob.y)
+#                print('rockimgsize[1]//2: ',rockimgsize[1]//2)
                 return True
                     
         return False
@@ -610,13 +611,15 @@ def init_employees():
 ##################################################
 
 class Obstacle(pg.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self,x,y,type):
         super().__init__()
-        self.image = img['SMALLROCK']
+        self.image = img[type]
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.x = x
         self.y = y
+        self.width = srockimgsize[0] if type=='SMALLROCK' else brockimgsize[0]
+        self.height = srockimgsize[1] if type=='SMALLROCK' else brockimgsize[1]
     def draw(self):
         self.rect.center = (self.x,self.y)
 
@@ -668,13 +671,13 @@ class Flower(pg.sprite.Sprite):
 def init_flower():
     flowers = []
     for i in range(3):
-        flowers.append(Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),'FLOWER1'))
+        flowers.append(Flower(random.randint(floimgsize3[0]//2+10,windowsize[0]-floimgsize3[0]//2-10),random.randint(floimgsize3[1]//2+10,windowsize[1]-100-5),'FLOWER1'))
         
     for i in range(1):
-        flowers.append(Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),'FLOWER2'))
+        flowers.append(Flower(random.randint(floimgsize3[0]//2+10,windowsize[0]-floimgsize3[0]//2-10),random.randint(floimgsize3[1]//2+10,windowsize[1]-100-5),'FLOWER2'))
         
     for i in range(1):
-        flowers.append(Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),'FLOWER3'))
+        flowers.append(Flower(random.randint(floimgsize3[0]//2+10,windowsize[0]-floimgsize3[0]//2-10),random.randint(floimgsize3[1]//2+10,windowsize[1]-100-5),'FLOWER3'))
         
     FLOWER = pg.sprite.Group()
     for f in flowers:
@@ -697,7 +700,7 @@ class Grass(pg.sprite.Sprite):
         self.rect.center = (self.x,self.y)
 
 def init_grass():
-    grass = [Grass(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5)) for i in range(40)]
+    grass = [Grass(random.randint(5,windowsize[0]-5),random.randint(5,windowsize[1]-100-5)) for i in range(40)]
     
     GRASS = pg.sprite.Group()
     for g in grass:
@@ -725,13 +728,13 @@ class Hive(pg.sprite.Sprite):
         pg.draw.rect(screen, (255,215,0), (self.hit_box[0], self.hit_box[1] - 70, 60, 6))
         #print('self.food: ',self.food)
         pg.draw.rect(screen, (255, 250, 250),
-                         (self.hit_box[0] + self.honey * 4 *(10/tot), self.hit_box[1] - 70, 60 - self.honey * 4 *(10/tot), 6))
+                         (self.hit_box[0] + self.honey * 6 *(10/tot), self.hit_box[1] - 70, 60 - self.honey * 6 *(10/tot), 6))
         self.rect.center = (self.x,self.y)
         self.rect.center = (self.x,self.y)
         
 
 def init_hive():
-    hives = [Hive(hiveimgsize[0]//2+10,windowsize[1]-hiveimgsize[1]//2-60)]
+    hives = [Hive(hiveimgsize[0]//2+20,windowsize[1]-hiveimgsize[1]//2-100)]
     HIVE = pg.sprite.Group()
     for h in hives:
         HIVE.add(h)
@@ -754,21 +757,71 @@ def main():
     hives,HIVE = init_hive()
     grass,GRASS = init_grass()
     
+    # create a font object.
+    # 1st parameter is the font file
+    # which is present in pygame.
+    # 2nd parameter is size of the font
+    font = pg.font.Font('freesansbold.ttf', 86)
+      
+    # create a text suface object,
+    # on which text is drawn on it.
+    text = font.render('GAMEOVER', True, (0,0,0), (204,0,0))
+      
+    # create a rectangular object for the
+    # text surface object
+    textRect = text.get_rect()
+      
+    # set the center of the rectangular object.
+    textRect.center = (windowsize[0] // 2, windowsize[1] // 2)
+    
+    
     running = True
     START=False
-    OBon=False
+    GAMEOVER=False
+    F1=False
+    F2=False
+    F3=False
+    SR=False
+    BR=False
     while running:
         clock.tick(40)
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 running = False
                 
-            if e.type == pg.MOUSEBUTTONDOWN and OBon:
+            if e.type == pg.MOUSEBUTTONDOWN and F1:
                 pos = pg.mouse.get_pos()
-                if 0 <= pos[1] <= 540:
-                    ob = Obstacle(pos[0],pos[1])
+                if 0 <= pos[1] <= windowsize[1]-100:
+                    f = Flower(pos[0],pos[1],'FLOWER1')
+                    flowers.append(f)
+                    FLOWER.add(f)
+            if e.type == pg.MOUSEBUTTONDOWN and F2:
+                pos = pg.mouse.get_pos()
+                if 0 <= pos[1] <= windowsize[1]-100:
+                    f = Flower(pos[0],pos[1],'FLOWER2')
+                    flowers.append(f)
+                    FLOWER.add(f)
+            if e.type == pg.MOUSEBUTTONDOWN and F3:
+                pos = pg.mouse.get_pos()
+                if 0 <= pos[1] <= windowsize[1]-100:
+                    f = Flower(pos[0],pos[1],'FLOWER3')
+                    flowers.append(f)
+                    FLOWER.add(f)
+            if e.type == pg.MOUSEBUTTONDOWN and SR:
+                pos = pg.mouse.get_pos()
+                if 0 <= pos[1] <= windowsize[1]-100:
+                    ob = Obstacle(pos[0],pos[1],'SMALLROCK')
                     obstacles.append(ob)
                     OBSTACLE.add(ob)
+            if e.type == pg.MOUSEBUTTONDOWN and BR:
+                pos = pg.mouse.get_pos()
+                if 0 <= pos[1] <= windowsize[1]-100:
+                    ob = Obstacle(pos[0],pos[1],'BIGROCK')
+                    obstacles.append(ob)
+                    OBSTACLE.add(ob)
+                    
+                    
+                    
                 
             if e.type == pg.MOUSEBUTTONDOWN:
                 if 600 <= mouse[0] <= 700 and 560 <= mouse[1] <= 580:
@@ -778,6 +831,7 @@ def main():
                     START=True
                     
                 if 250 <= mouse[0] <= 350 and 560 <= mouse[1] <= 580:
+                    GAMEOVER=False
                     hives[0].honey=onlooker_size
                     GlobalBestSource = -1
                     Sources.clear()
@@ -791,19 +845,31 @@ def main():
                     obstacles.clear()
                     OBSTACLE.empty()
                     START=True
-                    OBon=False
+                    F1=False;F2=False;F3=False;SR=False;BR=False
                     
-                if 450 <= mouse[0] <= 550 and 560 <= mouse[1] <= 580:
-                    OBon=True
+                if windowsize[0]//2-20 <= mouse[0] <= windowsize[0]//2-20+20 and 560 <= mouse[1] <= 580:
+                    F1=True;F2=False;F3=False;SR=False;BR=False
+                if windowsize[0]//2+20 <= mouse[0] <= windowsize[0]//2+20+20 and 560 <= mouse[1] <= 580:
+                    F2=True;F1=False;F3=False;SR=False;BR=False
+                if windowsize[0]//2+60 <= mouse[0] <= windowsize[0]//2+60+20 and 560 <= mouse[1] <= 580:
+                    F3=True;F1=False;F2=False;SR=False;BR=False
+                if windowsize[0]//2+100 <= mouse[0] <= windowsize[0]//2+100+20 and 560 <= mouse[1] <= 580:
+                    SR=True;F1=False;F2=False;F3=False;BR=False
+                if windowsize[0]//2+140 <= mouse[0] <= windowsize[0]//2+140+20 and 560 <= mouse[1] <= 580:
+                    BR=True;F1=False;F2=False;F3=False;SR=False
+                
                 
         screen.blit(background,(0,0))
         #screen.fill(bkgcolor)
         '''
             Game start
         '''
-        if START:
+        
+        if START and not GAMEOVER:
+            screen.blit(background,(-5,-5))
             if hives[0].honey<=0:
-                print('Game Over!')
+                GAMEOVER=True
+                print('GameOver!')
             if hives[0].honey>onlooker_size:
                 hives[0].honey=onlooker_size
             hives[0].count+=1
@@ -822,7 +888,7 @@ def main():
                     if s in flowers:
                         flowers.remove(s)
                         FLOWER.remove(s)
-                        f = Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),random.choice(flowerchoice))
+                        f = Flower(random.randint(floimgsize3[0]//2+10,windowsize[0]-floimgsize3[0]//2-10),random.randint(floimgsize3[1]//2+10,windowsize[1]-100-5),random.choice(flowerchoice))
                         flowers.append(f)
                         FLOWER.add(f)
                         
@@ -888,18 +954,35 @@ def main():
                 onlooker.update_direction(onlookers,flowers,hives,obstacles)
                 
             ONLOOKER.draw(screen)
+            
         
+        if GAMEOVER:
+            screen.fill(bkgcolor)
+            screen.blit(text, textRect)
         
         mouse = pg.mouse.get_pos()
         '''
             Display buttons
         '''
+        
+        screen.blit(pg.transform.scale(img['FLOWER1'],(20,20)), (windowsize[0]//2-20,windowsize[1]-40))
+        screen.blit(pg.transform.scale(img['FLOWER2'],(20,20)), (windowsize[0]//2+20,windowsize[1]-40))
+        screen.blit(pg.transform.scale(img['FLOWER3'],(20,20)), (windowsize[0]//2+60,windowsize[1]-40))
+        screen.blit(pg.transform.scale(img['SMALLROCK'],(20,20)), (windowsize[0]//2+100,windowsize[1]-40))
+        screen.blit(pg.transform.scale(img['BIGROCK'],(20,20)), (windowsize[0]//2+140,windowsize[1]-40))
+        
+        #img['FLOWER1'].get_rect()
+        
+        #pg.draw.rect(screen,(112,128,144),[0,windowsize[1]-90,windowsize[0],90])
+        #Need to be revised
+        buttonwidth = 100
+        buttonheight = 20
         #Quit button
-        if 600 <= mouse[0] <= 700 and 560 <= mouse[1] <= 580:
-            pg.draw.rect(screen,qu_light,[600,560,100,20])
+        if windowsize[0]-100-buttonwidth <= mouse[0] <= windowsize[0]-100 and windowsize[1]-20-buttonheight <= mouse[1] <= windowsize[1]-20:
+            pg.draw.rect(screen,qu_light,[windowsize[0]-100-buttonwidth,windowsize[1]-20-buttonheight,buttonwidth,buttonheight])
         else:
-            pg.draw.rect(screen,qu_dark,[600,560,100,20])
-        screen.blit(buttonfont.render('Quit' , True , color) , (600+35,560+3))
+            pg.draw.rect(screen,qu_dark,[windowsize[0]-100-buttonwidth,windowsize[1]-20-buttonheight,buttonwidth,buttonheight])
+        screen.blit(buttonfont.render('Quit' , True , color) , (windowsize[0]-100-buttonwidth+35,windowsize[1]-20-buttonheight+3))
         #Start button
         if 100 <= mouse[0] <= 200 and 560 <= mouse[1] <= 580:
             pg.draw.rect(screen,st_light,[100,560,100,20])
@@ -913,11 +996,19 @@ def main():
             pg.draw.rect(screen,re_dark,[250,560,100,20])
         screen.blit(buttonfont.render('Restart' , True , color) , (250+30,560+3))
         #Obstacle button
-        if 450 <= mouse[0] <= 550 and 560 <= mouse[1] <= 580:
-            pg.draw.rect(screen,ob_light,[450,560,100,20])
-        else:
-            pg.draw.rect(screen,ob_dark,[450,560,100,20])
-        screen.blit(buttonfont.render('Obstacle' , True , color) , (450+20,560+3))
+#        if 450 <= mouse[0] <= 550 and 560 <= mouse[1] <= 580:
+#            pg.draw.rect(screen,ob_light,[450,560,100,20])
+#        else:
+#            pg.draw.rect(screen,ob_dark,[450,560,100,20])
+#        screen.blit(buttonfont.render('Obstacle' , True , color) , (450+20,560+3))
+
+        #flower1
+        #if windowsize[0]//2-20 <= mouse[0] <= windowsize[0]//2-20+20 and windowsize[1]-40 <= mouse[1] <= windowsize[1]-40+20:
+        #pg.draw.rect(screen,ob_light,[windowsize[0]//2-20,windowsize[1]-40,20,20])
+        #screen.blit(pg.transform.scale(img['FLOWER1'],(20,20)), (windowsize[0]//2-20,windowsize[1]-40))
+        #else:
+        #    pg.draw.rect(screen,ob_dark,[windowsize[0]//2-20 <= mouse[0],windowsize[1]-40,20,20])
+         #   screen.blit(pg.transform.scale(img['FLOWER1'],(20,20)), (windowsize[0]//2-20,windowsize[1]-40))
         
         pg.display.update()
         
