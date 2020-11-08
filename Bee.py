@@ -114,6 +114,18 @@ def FitnessFunction(hive,flower):
         fsize=3
     return (fsize/fmaxsize)/(distance/longestdis)
 
+def RouletteWheelSelection():
+    global Sources
+    max = sum([x.val for x in Sources])
+    p = random.uniform(0,max)
+    base = 0
+    print('max: ',max)
+    for s in Sources:
+        print('base: ',base)
+        base += s.val
+        if base > p:
+            return s
+    return -1
 
 
 class Onlooker(pg.sprite.Sprite):
@@ -227,7 +239,9 @@ class Onlooker(pg.sprite.Sprite):
         return False
     
     def update_direction(self,other,flowers,hives,obstacles):
+        global Sources
         self.find_neighbors(other)
+        print('self.globest: ',self.globest)
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
             self.dx = -self.dx
@@ -253,7 +267,7 @@ class Onlooker(pg.sprite.Sprite):
                 self.carry=0
                 self.dx=0
                 self.dy=0
-                self.globest = GlobalBestSource
+                self.globest = RouletteWheelSelection()
                 hives[0].honey+=1
 
             else:
@@ -287,7 +301,7 @@ class Onlooker(pg.sprite.Sprite):
             else:
                 self.dx=0
                 self.dy=0
-                self.globest = GlobalBestSource
+                self.globest = RouletteWheelSelection()
         #Commented to make the picture not too messy
         '''
         #separation
@@ -797,6 +811,28 @@ def main():
                 hives[0].honey-=1
             if hives[0].count>1000:
                 hives[0].count=0
+                
+                
+            for s in Sources:
+                print('s.food: ',s.food)
+                if s.food<=0:
+                    Sources.remove(s)
+                    Sources = sorted(Sources, key= lambda e:e.val)
+                    
+                    if s in flowers:
+                        flowers.remove(s)
+                        FLOWER.remove(s)
+                        f = Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),random.choice(flowerchoice))
+                        flowers.append(f)
+                        FLOWER.add(f)
+                        
+                        if len(Sources)>0:
+                            GlobalBestSource = Sources[0]
+                        else:
+                            GlobalBestSource = -1
+                        print('hurray!')
+                    
+            '''
             if GlobalBestSource!=-1 and GlobalBestSource.food<=0:
                 #print('GlobalBestSource: ',GlobalBestSource)
                 Sources.remove(GlobalBestSource)
@@ -814,7 +850,8 @@ def main():
                 else:
                     GlobalBestSource = -1
                 print('hurray!')
-        
+            '''
+            
             for ob in obstacles:
                 ob.draw()
             
