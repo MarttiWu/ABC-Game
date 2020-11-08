@@ -68,22 +68,6 @@ buttonfont = pg.font.SysFont('Arial',20)
 
 #load images
 img = {
-#        'E1':pg.transform.scale(pg.image.load('images/employee1.png'), beeimgsize),
-#        'E2':pg.transform.scale(pg.image.load('images/employee2.png'), beeimgsize),
-#        'E3':pg.transform.scale(pg.image.load('images/employee3.png'), beeimgsize),
-#        'E4':pg.transform.scale(pg.image.load('images/employee4.png'), beeimgsize),
-#        'E5':pg.transform.scale(pg.image.load('images/employee5.png'), beeimgsize),
-#        'E6':pg.transform.scale(pg.image.load('images/employee6.png'), beeimgsize),
-#        'E7':pg.transform.scale(pg.image.load('images/employee7.png'), beeimgsize),
-#        'E8':pg.transform.scale(pg.image.load('images/employee8.png'), beeimgsize),
-#        'O1':pg.transform.scale(pg.image.load('images/onlooker1.png'), beeimgsize),
-#        'O2':pg.transform.scale(pg.image.load('images/onlooker2.png'), beeimgsize),
-#        'O3':pg.transform.scale(pg.image.load('images/onlooker3.png'), beeimgsize),
-#        'O4':pg.transform.scale(pg.image.load('images/onlooker4.png'), beeimgsize),
-#        'O5':pg.transform.scale(pg.image.load('images/onlooker5.png'), beeimgsize),
-#        'O6':pg.transform.scale(pg.image.load('images/onlooker6.png'), beeimgsize),
-#        'O7':pg.transform.scale(pg.image.load('images/onlooker7.png'), beeimgsize),
-#        'O8':pg.transform.scale(pg.image.load('images/onlooker8.png'), beeimgsize),
         'GRASS':pg.transform.scale(pg.image.load('images/grass.png'), graimgsize),
         'FLOWER1':pg.transform.scale(pg.image.load('images/flower1.png'), floimgsize1),
         'FLOWER2':pg.transform.scale(pg.image.load('images/flower2.png'), floimgsize2),
@@ -121,9 +105,9 @@ def RouletteWheelSelection():
     max = sum([x.val for x in Sources])
     p = random.uniform(0,max)
     base = 0
-    print('max: ',max)
+    #print('max: ',max)
     for s in Sources:
-        print('base: ',base)
+        #print('base: ',base)
         base += s.val
         if base > p:
             return s
@@ -169,23 +153,6 @@ class Onlooker(pg.sprite.Sprite):
             self.y = -self.y
             self.dy = -self.dy
 
-        #change image for different directions
-#        if self.dx==0 and self.dy<0:
-#            self.image = img['O1']
-#        elif self.dx>0 and self.dy<0:
-#            self.image = img['O2']
-#        elif self.dx>0 and self.dy==0:
-#            self.image = img['O3']
-#        elif self.dx>0 and self.dy>0:
-#            self.image = img['O4']
-#        elif self.dx==0 and self.dy>0:
-#            self.image = img['O5']
-#        elif self.dx<0 and self.dy>0:
-#            self.image = img['O6']
-#        elif self.dx<0 and self.dy==0:
-#            self.image = img['O7']
-#        elif self.dx<0 and self.dy<0:
-#            self.image = img['O8']
         self.wing = -self.wing
         if self.dx>=0:
             if self.wing==1:
@@ -235,7 +202,7 @@ class Onlooker(pg.sprite.Sprite):
         elif self.globest.size=='FLOWER3':
             floimgsize = floimgsize3
         
-        if ((self.x>x-floimgsize[0]//2-5) and (self.x<x+floimgsize[0]//2+5)) and ((self.y>y-floimgsize[1]//2-5) and (self.y<y+floimgsize[1]//2+5)):
+        if ((self.x>x-floimgsize[0]//2+8) and (self.x<x+floimgsize[0]//2-8)) and ((self.y>y-floimgsize[1]//2+8) and (self.y<y+floimgsize[1]//2-8)):
             return True
             
         return False
@@ -250,14 +217,10 @@ class Onlooker(pg.sprite.Sprite):
     def update_direction(self,other,flowers,hives,obstacles):
         global Sources
         self.find_neighbors(other)
-        print('self.globest: ',self.globest)
+        #print('self.globest: ',self.globest)
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
             dx,dy = rotate((0,0),(self.dx,self.dy),math.radians(270))
-            #self.dx = -self.dx/2
-            #self.dy = -self.dy
-            #self.x += self.dx*step*5
-            #self.y += self.dy*step*5
             self.x += dx*step*1
             self.y += dy*step*1
             return
@@ -270,7 +233,7 @@ class Onlooker(pg.sprite.Sprite):
             self.y += self.dy*step
             self.globest.food-=1
             
-            print('food: ',self.globest.food)
+            #print('food: ',self.globest.food)
             return
         
         #Return to hive with food and store
@@ -290,6 +253,16 @@ class Onlooker(pg.sprite.Sprite):
                     divisor = 0.01
                 else:
                     divisor = np.linalg.norm(np.array([dx,dy]))
+                
+                dx = dx/divisor + random.uniform(0,1)*0.8
+                dy = dy/divisor + random.uniform(0,1)*0.8
+                
+                #prevent divide by 0
+                if np.linalg.norm(np.array([dx,dy]))==0:
+                    divisor = 0.01
+                else:
+                    divisor = np.linalg.norm(np.array([dx,dy]))
+                    
                 self.dx = dx/divisor
                 self.dy = dy/divisor
             return
@@ -302,6 +275,16 @@ class Onlooker(pg.sprite.Sprite):
                 dx = self.globest.x-self.x
                 dy = self.globest.y-self.y
                 
+                if np.linalg.norm(np.array([dx,dy]))==0:
+                    divisor = 0.01
+                else:
+                    divisor = np.linalg.norm(np.array([dx,dy]))
+                
+                
+                dx = dx/divisor + random.uniform(0,1)*0.8
+                dy = dy/divisor + random.uniform(0,1)*0.8
+                
+                #prevent divide by 0
                 if np.linalg.norm(np.array([dx,dy]))==0:
                     divisor = 0.01
                 else:
@@ -340,12 +323,6 @@ class Onlooker(pg.sprite.Sprite):
     def is_collided_with(self, obstacles):
         for ob in obstacles:
             if ((self.x > ob.x-ob.width//2) and (self.x < ob.x+ob.width//2)) and ((self.y > ob.y-ob.height//2) and (self.y < ob.y+ob.height//2)):
-#                print('self.x: ',self.x)
-#                print('ob.x: ',ob.x)
-#                print('rockimgsize[0]//2: ',rockimgsize[0]//2)
-#                print('self.y: ',self.y)
-#                print('ob.y: ',ob.y)
-#                print('rockimgsize[1]//2: ',rockimgsize[1]//2)
                 return True
                     
         return False
@@ -360,13 +337,6 @@ def init_onlookers():
         ONLOOKER.add(o)
         
     return onlookers,ONLOOKER
-
-
-
-
-
-
-
 
 
 
@@ -418,31 +388,8 @@ class Employee(pg.sprite.Sprite):
         if self.y<0:
             self.y = -self.y
             self.dy = -self.dy
-        '''
-        #check for collision with obstacles
-        if self.is_collided_with(obstacles):
-            self.dx = -self.dx
-            self.dy = -self.dy
-            self.x += random.choice(numbers)*2
-            self.y += random.choice(numbers)*2
-        '''
+
         #change image for different directions
-#        if self.dx==0 and self.dy<0:
-#            self.image = img['E1']
-#        elif self.dx>0 and self.dy<0:
-#            self.image = img['E2']
-#        elif self.dx>0 and self.dy==0:
-#            self.image = img['E3']
-#        elif self.dx>0 and self.dy>0:
-#            self.image = img['E4']
-#        elif self.dx==0 and self.dy>0:
-#            self.image = img['E5']
-#        elif self.dx<0 and self.dy>0:
-#            self.image = img['E6']
-#        elif self.dx<0 and self.dy==0:
-#            self.image = img['E7']
-#        elif self.dx<0 and self.dy<0:
-#            self.image = img['E8']
         self.wing = -self.wing
         if self.dx>=0:
             if self.wing==1:
@@ -498,10 +445,6 @@ class Employee(pg.sprite.Sprite):
         #check for collision with obstacles
         if self.is_collided_with(obstacles):
             dx,dy = rotate((0,0),(self.dx,self.dy),math.radians(270))
-            #self.dx = -self.dx/2
-            #self.dy = -self.dy
-            #self.x += self.dx*step*5
-            #self.y += self.dy*step*5
             self.x += dx*step*1
             self.y += dy*step*1
             return
@@ -512,7 +455,7 @@ class Employee(pg.sprite.Sprite):
                 self.globest = GlobalBestSource
                 self.back=Ereturn
                 self.acheive=False
-                print('Time up, back home!')
+                #print('Time up, back home!')
             else:
                 #self.count=3
                 dx = hives[0].x-self.x
@@ -534,7 +477,7 @@ class Employee(pg.sprite.Sprite):
                 self.dy=0
     
                 self.count-=1
-                print('count: ',self.count)
+                #print('count: ',self.count)
                 self.globest = GlobalBestSource
                 
                 self.back=Ereturn
@@ -547,7 +490,7 @@ class Employee(pg.sprite.Sprite):
             return
         #Stay at current position to extract food
         if self.foundSource(flowers,hives):
-            print('Found Source')
+            #print('Found Source')
             self.carry=1
             self.dx=0
             self.dy=0
@@ -598,12 +541,6 @@ class Employee(pg.sprite.Sprite):
     def is_collided_with(self, obstacles):
         for ob in obstacles:
             if ((self.x > ob.x-ob.width//2) and (self.x < ob.x+ob.width//2)) and ((self.y > ob.y-ob.height//2) and (self.y < ob.y+ob.height//2)):
-#                print('self.x: ',self.x)
-#                print('ob.x: ',ob.x)
-#                print('rockimgsize[0]//2: ',rockimgsize[0]//2)
-#                print('self.y: ',self.y)
-#                print('ob.y: ',ob.y)
-#                print('rockimgsize[1]//2: ',rockimgsize[1]//2)
                 return True
                     
         return False
@@ -770,21 +707,9 @@ def main():
     hives,HIVE = init_hive()
     grass,GRASS = init_grass()
     
-    # create a font object.
-    # 1st parameter is the font file
-    # which is present in pygame.
-    # 2nd parameter is size of the font
     font = pg.font.Font('freesansbold.ttf', 86)
-      
-    # create a text suface object,
-    # on which text is drawn on it.
     text = font.render('GAMEOVER', True, (0,0,0), (204,0,0))
-      
-    # create a rectangular object for the
-    # text surface object
     textRect = text.get_rect()
-      
-    # set the center of the rectangular object.
     textRect.center = (windowsize[0] // 2, windowsize[1] // 2)
     
     
@@ -882,7 +807,7 @@ def main():
             screen.blit(background,(-5,-5))
             if hives[0].honey<=0:
                 GAMEOVER=True
-                print('GameOver!')
+                #print('GameOver!')
             if hives[0].honey>onlooker_size:
                 hives[0].honey=onlooker_size
             hives[0].count+=1
@@ -893,7 +818,7 @@ def main():
                 
                 
             for s in Sources:
-                print('s.food: ',s.food)
+                #print('s.food: ',s.food)
                 if s.food<=0:
                     Sources.remove(s)
                     Sources = sorted(Sources, key= lambda e:e.val)
@@ -909,27 +834,7 @@ def main():
                             GlobalBestSource = Sources[0]
                         else:
                             GlobalBestSource = -1
-                        print('hurray!')
-                    
-            '''
-            if GlobalBestSource!=-1 and GlobalBestSource.food<=0:
-                #print('GlobalBestSource: ',GlobalBestSource)
-                Sources.remove(GlobalBestSource)
-                Sources = sorted(Sources, key= lambda e:e.val)
-                
-                if GlobalBestSource in flowers:
-                    flowers.remove(GlobalBestSource)
-                    FLOWER.remove(GlobalBestSource)
-                    f = Flower(random.randint(hiveimgsize[0]+5,windowsize[0]-5),random.randint(hiveimgsize[1]+5,windowsize[1]-5),random.choice(flowerchoice))
-                    flowers.append(f)
-                    FLOWER.add(f)
-                    
-                if len(Sources)>0:
-                    GlobalBestSource = Sources[0]
-                else:
-                    GlobalBestSource = -1
-                print('hurray!')
-            '''
+                        #print('hurray!')
             
             for ob in obstacles:
                 ob.draw()
@@ -984,9 +889,6 @@ def main():
         screen.blit(pg.transform.scale(img['SMALLROCK'],(20,20)), (windowsize[0]//2+100,windowsize[1]-40))
         screen.blit(pg.transform.scale(img['BIGROCK'],(20,20)), (windowsize[0]//2+140,windowsize[1]-40))
         
-        #img['FLOWER1'].get_rect()
-        
-        #pg.draw.rect(screen,(112,128,144),[0,windowsize[1]-90,windowsize[0],90])
         #Need to be revised
         buttonwidth = 100
         buttonheight = 20
@@ -1008,21 +910,7 @@ def main():
         else:
             pg.draw.rect(screen,re_dark,[250,560,100,20])
         screen.blit(buttonfont.render('Restart' , True , color) , (250+30,560+3))
-        #Obstacle button
-#        if 450 <= mouse[0] <= 550 and 560 <= mouse[1] <= 580:
-#            pg.draw.rect(screen,ob_light,[450,560,100,20])
-#        else:
-#            pg.draw.rect(screen,ob_dark,[450,560,100,20])
-#        screen.blit(buttonfont.render('Obstacle' , True , color) , (450+20,560+3))
 
-        #flower1
-        #if windowsize[0]//2-20 <= mouse[0] <= windowsize[0]//2-20+20 and windowsize[1]-40 <= mouse[1] <= windowsize[1]-40+20:
-        #pg.draw.rect(screen,ob_light,[windowsize[0]//2-20,windowsize[1]-40,20,20])
-        #screen.blit(pg.transform.scale(img['FLOWER1'],(20,20)), (windowsize[0]//2-20,windowsize[1]-40))
-        #else:
-        #    pg.draw.rect(screen,ob_dark,[windowsize[0]//2-20 <= mouse[0],windowsize[1]-40,20,20])
-         #   screen.blit(pg.transform.scale(img['FLOWER1'],(20,20)), (windowsize[0]//2-20,windowsize[1]-40))
-        
         pg.display.update()
         
 
