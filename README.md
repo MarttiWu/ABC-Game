@@ -39,4 +39,15 @@ Pi shows the probablility that the ith source which each onlooker will pick. SC 
 
 # Behaviors
 
+Employed Bees: The bees with health bar.
+Onlooker Bees: The bees without health bar.
 <img src=readmeimg/employed.gif width="400" height="300">
+
+Scout Bees: Some employed bees transformed to scout bees.
+<img src=readmeimg/scout.gif width="400" height="300">
+
+Roulette Wheel Selection
+<img src=readmeimg/roulette.gif width="400" height="300">
+
+Obstables Avoidance
+<img src=readmeimg/avoidance.gif width="400" height="300">
