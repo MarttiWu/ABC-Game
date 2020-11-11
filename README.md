@@ -3,9 +3,8 @@
 
 ## Formula
 ### Fitness Funtion
-\begin{equation*}
-{F}_{i} = \frac{\alpha \frac{S_{i}}{S_{max}}}{\beta \frac{D_{i}}{D_{max}}}
-\end{equation*}
+
+${F}_{i} = \frac{\alpha \frac{S_{i}}{S_{max}}}{\beta \frac{D_{i}}{D_{max}}}$
 Fi represents the value of the ith source. Si indicates the amount of food and Di indicates the distance from the hive. Smax and Dmax is the maxium capacity among all sources and the longest distance from hive.
 
 # Prerequesities
