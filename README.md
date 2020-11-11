@@ -34,7 +34,7 @@ Pi shows the probablility that the ith source which each onlooker will pick. SC 
 2. Restart : Reinitialize all objects in the game.
 3. Obstacles : There are two different sizes of rocks that can be placed during the game time.
 4. Flowers : There are three different types of sources which can be placed during the game time.
-
+5. Quit: Quit the game
 <img src=readmeimg/start.png width="120" height="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=readmeimg/restart.png width="120" height="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=readmeimg/flower1.png width="30" height="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=readmeimg/flower2.png width="30" height="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=readmeimg/flower3.png width="30" height="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=readmeimg/smallrock.png width="30" height="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=readmeimg/bigrock.png width="30" height="30">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=readmeimg/quit.png width="120" height="30">
 
 # Behaviors
