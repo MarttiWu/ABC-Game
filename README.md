@@ -1,5 +1,16 @@
 # ABC-Game
 
+ABC-Game is an interesting simulator of Artificial Bee Colony algorithm which is proposed by Karaboga in 2005.
+
+## Rules
+
+The behaviors of bees can be summarized in a few steps:
+1. The employed bees start to search for food sources(flowers) in random steps and re- turn to hive whenever are out of energy.
+2. After finding a food source, the employed bee returns to the hive and starts danc- ing (Waggle dance.The method how honey bees share information about the direction and source value, which is the fitness value in the algorithm).
+3. Onlooker bees get the information and adopt roulette wheel selection method to choose a destination among all found sources.
+4. When arrived at destination, onlooker bees gather nectar. Once get back to hive, they store the food collected.
+5. The employed bees will reference the food sources that have been found by others recently, which is the local search process here.
+6. And also have chances to turn into scout bees searching in other areas randomly, which is the global search process here.
 
 ## Formula
 ### Fitness Funtion
