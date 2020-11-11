@@ -1,6 +1,6 @@
 # ABC-Game
 
-ABC-Game is an interesting simulator of Artificial Bee Colony algorithm which is proposed by Karaboga in 2005.
+ABC-Game is an interesting simulator based on Artificial Bee Colony algorithm which is a metaheuristic based algorithm proposed by Karaboga in 2005.
 
 ## Rules
 
