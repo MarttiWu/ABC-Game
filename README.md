@@ -5,5 +5,5 @@
 
 # Buttons
 
-<img src=readmeimg/start.png width="60">
-![](readmeimg/start.png =60x20) ![](readmeimg/restart.png =60x20) ![](readmeimg/flower1.png) ![](readmeimg/flower2.png) ![](readmeimg/flower3.png) ![](readmeimg/smallrock.png) ![](readmeimg/bigrock.png) ![](readmeimg/quit.png)
+<img src=readmeimg/start.png width="100"> <img src=readmeimg/restart.png width="100"> <img src=readmeimg/flower1.png width="100"> <img src=readmeimg/flower2.png width="100"> <img src=readmeimg/flower3.png width="100"> <img src=readmeimg/smallrock.png width="100"> <img src=readmeimg/bigrock.png width="100"> <img src=readmeimg/quit.png width="100">
+
