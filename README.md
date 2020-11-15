@@ -5,7 +5,7 @@ ABC-Game is an interesting simulator based on Artificial Bee Colony algorithm wh
 ## Rules
 
 The behaviors of bees can be summarized in a few steps:
-1. The employed bees start to search for food sources(flowers) in random steps and re- turn to hive whenever are out of energy.
+1. The employed bees start to search for food sources(flowers) in random steps and return to hive whenever are out of energy.
 2. After finding a food source, the employed bee returns to the hive and starts dancing (Waggle dance.The method how honey bees share information about the direction and source value, which is the fitness value in the algorithm).
 3. Onlooker bees get the information and adopt roulette wheel selection method to choose a destination among all found sources.
 4. When arrived at destination, onlooker bees gather nectar. Once get back to hive, they store the food collected.
